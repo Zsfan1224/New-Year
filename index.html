@@ -36,7 +36,7 @@
         ctx.fillStyle = "rgba(0,5,24,0.1)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        if (Math.random() < 0.02) {
+        if (Math.random() < 0.03) {
             var x = Math.random() * canvas.width;
             var y = Math.random() * 100 + 50;
             var bigboom = new Boom(x, y);
@@ -69,9 +69,11 @@
     };
 
     Boom.prototype.init = function() {
-        var numParticles = 100;
+        var numParticles = 200;
+        var colors = ['#FF0000', '#FF6600', '#FFFF00', '#33FF33', '#33CCFF', '#FF33CC'];
+
         for (var i = 0; i < numParticles; i++) {
-            var particle = new Particle(this.x, this.y);
+            var particle = new Particle(this.x, this.y, colors[Math.floor(Math.random() * colors.length)]);
             this.particles.push(particle);
         }
     };
@@ -89,19 +91,22 @@
         }
     };
 
-    var Particle = function(x, y) {
+    var Particle = function(x, y, color) {
         this.x = x;
         this.y = y;
         this.size = Math.random() * 3 + 1;
-        this.speedX = Math.random() * 4 - 2;
-        this.speedY = Math.random() * 4 - 2;
+        this.speedX = Math.random() * 6 - 3;
+        this.speedY = Math.random() * 6 - 3;
         this.alpha = 1;
         this.dead = false;
+        this.color = color;
+        this.gravity = 0.05;
     };
 
     Particle.prototype.update = function() {
         this.x += this.speedX;
         this.y += this.speedY;
+        this.speedY += this.gravity;
         this.alpha -= 0.02;
         if (this.alpha <= 0) {
             this.dead = true;
@@ -114,7 +119,7 @@
         ctx.globalAlpha = this.alpha;
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fillStyle = "white";
+        ctx.fillStyle = this.color;
         ctx.fill();
         ctx.restore();
     };
