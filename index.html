@@ -26,8 +26,8 @@
     .firework {
       position: absolute;
       bottom: 0;
-      width: 5px;
-      height: 5px;
+      width: 10px;
+      height: 10px;
       background-color: white;
       border-radius: 50%;
       animation: firework-animation 2s ease-out forwards, fade-out 1s ease-out forwards;
@@ -61,15 +61,17 @@
     function createFirework() {
       const firework = document.createElement('div');
       firework.classList.add('firework');
+      // 在屏幕宽度范围内随机生成烟花的位置
       const startPositionX = Math.random() * window.innerWidth;
       firework.style.left = `${startPositionX}px`;
 
+      // 将烟花添加到页面中
       document.body.appendChild(firework);
 
-      // 设置烟花结束后移除
+      // 设置烟花在动画结束后移除
       setTimeout(() => {
         firework.remove();
-      }, 3000); // 确保烟花动画完成后再移除
+      }, 2500); // 等待烟花动画完成后再移除
     }
 
     setInterval(createFirework, 200); // 每200毫秒生成一个烟花
