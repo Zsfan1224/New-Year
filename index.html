@@ -3,78 +3,143 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>烟花效果</title>
+  <title>烟花动画</title>
   <style>
-    body {
+    body, html {
       margin: 0;
       padding: 0;
-      background-color: black;
+      height: 100%;
       overflow: hidden;
-      position: relative;
     }
-
-    #photo {
+    #cas {
       position: absolute;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 100%;
-      max-width: 600px;
-      z-index: 1;
-    }
-
-    .firework {
-      position: absolute;
-      bottom: 0;
-      width: 10px;
-      height: 10px;
-      background-color: white;
-      border-radius: 50%;
-      animation: firework-animation 2s ease-out forwards, fade-out 1s ease-out forwards;
-    }
-
-    @keyframes firework-animation {
-      0% {
-        transform: translateY(0) scale(1);
-        opacity: 1;
-      }
-      100% {
-        transform: translateY(-500px) scale(2);
-        opacity: 1;
-      }
-    }
-
-    @keyframes fade-out {
-      0% {
-        opacity: 1;
-      }
-      100% {
-        opacity: 0;
-      }
+      top: 0;
+      left: 0;
     }
   </style>
 </head>
 <body>
-  <img id="photo" src="https://img.091224.xyz/file/1735641322831_city.png" alt="Photo">
 
+  <canvas id="cas"></canvas>
+  
   <script>
-    function createFirework() {
-      const firework = document.createElement('div');
-      firework.classList.add('firework');
-      // 在屏幕宽度范围内随机生成烟花的位置
-      const startPositionX = Math.random() * window.innerWidth;
-      firework.style.left = `${startPositionX}px`;
+    var canvas = document.getElementById("cas");
+    var ocas = document.createElement("canvas");
+    var octx = ocas.getContext("2d");
+    var ctx = canvas.getContext("2d");
+    ocas.width = canvas.width = window.innerWidth;
+    ocas.height = canvas.height = window.innerHeight;
+    var bigbooms = [];
 
-      // 将烟花添加到页面中
-      document.body.appendChild(firework);
-
-      // 设置烟花在动画结束后移除
-      setTimeout(() => {
-        firework.remove();
-      }, 2500); // 等待烟花动画完成后再移除
+    function initAnimate() {
+        drawBg();
+        lastTime = new Date();
+        animate();
     }
 
-    setInterval(createFirework, 200); // 每200毫秒生成一个烟花
+    var lastTime;
+    function animate() {
+        ctx.save();
+        ctx.fillStyle = "rgba(0,5,24,0.1)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.restore();
+
+        var newTime = new Date();
+        if (newTime - lastTime > 500 + (window.innerHeight - 767) / 2) {
+            var random = Math.random() * 100 > 33 ? true : false;
+            var x = getRandom(canvas.width / 5, canvas.width * 4 / 5);
+            var y = getRandom(50, 200);
+            if (random) {
+                var bigboom = new Boom(getRandom(canvas.width / 3, canvas.width * 2 / 3), 2, "#FFF", { x: x, y: y });
+                bigbooms.push(bigboom);
+            } else {
+                var bigboom = new Boom(getRandom(canvas.width / 3, canvas.width * 2 / 3), 2, "#FFF", { x: canvas.width / 2, y: 200 });
+                bigbooms.push(bigboom);
+            }
+            lastTime = newTime;
+        }
+
+        stars.forEach(function(star) {
+            star.paint();
+        });
+        
+        drawMoon();
+
+        bigbooms.forEach(function(index) {
+            var that = this;
+            if (!this.dead) {
+                this._move();
+                this._drawLight();
+            } else {
+                this.booms.forEach(function(index) {
+                    if (!this.dead) {
+                        this.moveTo(index);
+                    } else {
+                        if (index === that.booms.length - 1) {
+                            bigbooms[bigbooms.indexOf(that)] = null;
+                        }
+                    }
+                });
+            }
+        });
+
+        raf(animate);
+    }
+
+    function drawMoon() {
+        var moon = document.getElementById("moon");
+        var centerX = canvas.width - 200, centerY = 100, width = 80;
+        if (moon.complete) {
+            ctx.drawImage(moon, centerX, centerY, width, width);
+        } else {
+            moon.onload = function() {
+                ctx.drawImage(moon, centerX, centerY, width, width);
+            };
+        }
+
+        var index = 0;
+        for (var i = 0; i < 10; i++) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(centerX + width / 2, centerY + width / 2, width / 2 + index, 0, 2 * Math.PI);
+            ctx.fillStyle = "rgba(240,219,120,0.005)";
+            index += 2;
+            ctx.fill();
+            ctx.restore();
+        }
+    }
+
+    Array.prototype.forEach = function(callback) {
+        for (var i = 0; i < this.length; i++) {
+            if (this[i] !== null) {
+                callback.apply(this[i], [i]);
+            }
+        }
+    };
+
+    var raf = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame ||
+        function(callback) {
+            window.setTimeout(callback, 1000 / 60);
+        };
+
+    canvas.onclick = function() {
+        var x = event.clientX;
+        var y = event.clientY;
+        var bigboom = new Boom(getRandom(canvas.width / 3, canvas.width * 2 / 3), 2, "#FFF", { x: x, y: y });
+        bigbooms.push(bigboom);
+    };
+
+    // Boom constructor and other methods ...
+
+    // Utility functions like getRandom, drawBg, etc.
+
+    function getRandom(a, b) {
+        return Math.random() * (b - a) + a;
+    }
+
+    // Initialize animation
+    initAnimate();
+
   </script>
 </body>
 </html>
