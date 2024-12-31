@@ -25,117 +25,101 @@
   
   <script>
     var canvas = document.getElementById("cas");
-    var ocas = document.createElement("canvas");
-    var octx = ocas.getContext("2d");
     var ctx = canvas.getContext("2d");
-    ocas.width = canvas.width = window.innerWidth;
-    ocas.height = canvas.height = window.innerHeight;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
     var bigbooms = [];
 
-    function initAnimate() {
-        drawBg();
-        lastTime = new Date();
-        animate();
-    }
-
-    var lastTime;
     function animate() {
-        ctx.save();
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = "rgba(0,5,24,0.1)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.restore();
 
-        var newTime = new Date();
-        if (newTime - lastTime > 500 + (window.innerHeight - 767) / 2) {
-            var random = Math.random() * 100 > 33 ? true : false;
-            var x = getRandom(canvas.width / 5, canvas.width * 4 / 5);
-            var y = getRandom(50, 200);
-            if (random) {
-                var bigboom = new Boom(getRandom(canvas.width / 3, canvas.width * 2 / 3), 2, "#FFF", { x: x, y: y });
-                bigbooms.push(bigboom);
-            } else {
-                var bigboom = new Boom(getRandom(canvas.width / 3, canvas.width * 2 / 3), 2, "#FFF", { x: canvas.width / 2, y: 200 });
-                bigbooms.push(bigboom);
-            }
-            lastTime = newTime;
+        if (Math.random() < 0.02) {
+            var x = Math.random() * canvas.width;
+            var y = Math.random() * 100 + 50;
+            var bigboom = new Boom(x, y);
+            bigbooms.push(bigboom);
         }
 
-        stars.forEach(function(star) {
-            star.paint();
-        });
-        
-        drawMoon();
-
-        bigbooms.forEach(function(index) {
-            var that = this;
-            if (!this.dead) {
-                this._move();
-                this._drawLight();
-            } else {
-                this.booms.forEach(function(index) {
-                    if (!this.dead) {
-                        this.moveTo(index);
-                    } else {
-                        if (index === that.booms.length - 1) {
-                            bigbooms[bigbooms.indexOf(that)] = null;
-                        }
-                    }
-                });
+        bigbooms.forEach(function(bigboom, index) {
+            bigboom.update();
+            if (bigboom.dead) {
+                bigbooms.splice(index, 1);
             }
         });
 
-        raf(animate);
+        requestAnimationFrame(animate);
     }
 
-    function drawMoon() {
-        var moon = document.getElementById("moon");
-        var centerX = canvas.width - 200, centerY = 100, width = 80;
-        if (moon.complete) {
-            ctx.drawImage(moon, centerX, centerY, width, width);
-        } else {
-            moon.onload = function() {
-                ctx.drawImage(moon, centerX, centerY, width, width);
-            };
-        }
-
-        var index = 0;
-        for (var i = 0; i < 10; i++) {
-            ctx.save();
-            ctx.beginPath();
-            ctx.arc(centerX + width / 2, centerY + width / 2, width / 2 + index, 0, 2 * Math.PI);
-            ctx.fillStyle = "rgba(240,219,120,0.005)";
-            index += 2;
-            ctx.fill();
-            ctx.restore();
-        }
-    }
-
-    Array.prototype.forEach = function(callback) {
-        for (var i = 0; i < this.length; i++) {
-            if (this[i] !== null) {
-                callback.apply(this[i], [i]);
-            }
-        }
-    };
-
-    var raf = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame ||
-        function(callback) {
-            window.setTimeout(callback, 1000 / 60);
-        };
-
-    canvas.onclick = function() {
+    canvas.onclick = function(event) {
         var x = event.clientX;
         var y = event.clientY;
-        var bigboom = new Boom(getRandom(canvas.width / 3, canvas.width * 2 / 3), 2, "#FFF", { x: x, y: y });
+        var bigboom = new Boom(x, y);
         bigbooms.push(bigboom);
     };
 
-    function getRandom(a, b) {
-        return Math.random() * (b - a) + a;
-    }
+    var Boom = function(x, y) {
+        this.x = x;
+        this.y = y;
+        this.particles = [];
+        this.dead = false;
+        this.init();
+    };
 
-    initAnimate();
+    Boom.prototype.init = function() {
+        var numParticles = 100;
+        for (var i = 0; i < numParticles; i++) {
+            var particle = new Particle(this.x, this.y);
+            this.particles.push(particle);
+        }
+    };
 
+    Boom.prototype.update = function() {
+        var deadCount = 0;
+        this.particles.forEach(function(particle) {
+            particle.update();
+            if (particle.dead) {
+                deadCount++;
+            }
+        });
+        if (deadCount === this.particles.length) {
+            this.dead = true;
+        }
+    };
+
+    var Particle = function(x, y) {
+        this.x = x;
+        this.y = y;
+        this.size = Math.random() * 3 + 1;
+        this.speedX = Math.random() * 4 - 2;
+        this.speedY = Math.random() * 4 - 2;
+        this.alpha = 1;
+        this.dead = false;
+    };
+
+    Particle.prototype.update = function() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        this.alpha -= 0.02;
+        if (this.alpha <= 0) {
+            this.dead = true;
+        }
+        this.draw();
+    };
+
+    Particle.prototype.draw = function() {
+        ctx.save();
+        ctx.globalAlpha = this.alpha;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = "white";
+        ctx.fill();
+        ctx.restore();
+    };
+
+    animate();
   </script>
 </body>
 </html>
