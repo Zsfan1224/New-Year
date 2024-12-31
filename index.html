@@ -86,21 +86,25 @@
         star.paint();
       });
 
-      bigbooms.forEach(function(bigboom) {
+      // 清理已死亡的烟花和碎片
+      bigbooms = bigbooms.filter(function(bigboom) {
         if (!bigboom.dead) {
           bigboom._move();
           bigboom._drawLight();
-        } else {
-          bigboom.booms.forEach(function(frag, index) {
-            if (!frag.dead) {
-              frag.moveTo(index);
-            } else {
-              if (index === bigboom.booms.length - 1) {
-                bigbooms[bigbooms.indexOf(bigboom)] = null;
-              }
-            }
-          });
+          return true; // 保留活着的烟花
         }
+        return false; // 移除死亡的烟花
+      });
+
+      // 更新并绘制所有烟花碎片
+      bigbooms.forEach(function(bigboom) {
+        bigboom.booms = bigboom.booms.filter(function(frag) {
+          if (!frag.dead) {
+            frag.moveTo();
+            return true; // 保留活着的碎片
+          }
+          return false; // 移除死亡的碎片
+        });
       });
 
       requestAnimationFrame(animate);
