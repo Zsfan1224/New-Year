@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>宝宝</title>
+    <meta name="language" content="zh-CN">
+    <meta name="title" content="小宝宝">
+    <meta name="github" content="https://github.com/sun0225SUN/Awesome-Love-Code">
+    <meta name="describe" content="收集不易，您的star是我坚持的动力，同时也欢迎各位PR哦! ">
+    <link rel="icon" type="image/x-icon" href="https://cdn.jsdelivr.net/gh/sun0225SUN/photos/img/20210715233345.png">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .city {
+            width: 100%;
+            position: fixed;
+            bottom: 0px;
+            z-index: 100;
+        }
+
+        .city img {
+            width: 100%;
+        }
+
+        audio {
+            opacity: 0;
+        }
+    </style>
+    <title>
+        放烟花
+    </title>
+    <link href="modal.css" rel="stylesheet" />
+</head>
+
+<body onselectstart="return false">
+    <!--烟花部分-->
+    <canvas id='cas' style="background-color:rgba(0,5,24,1)">
+        浏览器不支持canvas
+    </canvas>
+    <div class="city">
+        <!-- 使用新的城市背景图片 URL -->
+        <img src="https://img.091224.xyz/file/1735641322831_city.png" alt="城市背景" />
+    </div>
+    <!-- 使用新的月亮图片 URL，并让月亮初始为可见 -->
+    <img src="https://img.091224.xyz/file/1735641454424_moon.png" alt="月亮" id="moon" />
+    <div style="display:none">
+        <div class="shape">
+            刘嘉欣
+        </div>
+        <div class="shape">
+            我爱你
+        </div>
+    </div>
+    <script src="jquery.min.js"></script>
+    <script src="fire.js"></script>
+    <script src="talk.js"></script>
+</body>
+
+</html>
