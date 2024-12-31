@@ -17,15 +17,12 @@
       top: 0;
       left: 0;
     }
-    #moon {
-      display: none;
-    }
   </style>
 </head>
 <body>
 
   <!-- 用于显示月亮的图片 -->
-  <img id="moon" src="moon.png" alt="moon" width="80" height="80">
+  <img id="moon" src="moon.png" alt="moon" width="80" height="80" style="display:none">
 
   <canvas id="cas"></canvas>
 
@@ -41,6 +38,8 @@
     var stars = [];
     var maxRadius = 1;
     var lastTime;
+    var moon = document.getElementById("moon");  // 缓存月亮图像
+    var shapes = document.querySelectorAll(".shape");  // 缓存shape元素
 
     // 用于随机生成数值的函数
     function getRandom(a, b) {
@@ -58,7 +57,7 @@
     function animate() {
       ctx.save();
       ctx.fillStyle = "rgba(0,5,24,0.1)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillRect(0, 0, canvas.width, canvas.height);  // 清理画布
       ctx.restore();
 
       var newTime = new Date();
@@ -66,19 +65,12 @@
         var random = Math.random() * 100 > 33 ? true : false;
         var x = getRandom(canvas.width / 5, canvas.width * 4 / 5);
         var y = getRandom(50, 200);
-        if (random) {
-          var bigboom = new Boom(getRandom(canvas.width / 3, canvas.width * 2 / 3), 2, "#FFF", {
-            x: x,
-            y: y
-          });
-          bigbooms.push(bigboom);
-        } else {
-          var bigboom = new Boom(getRandom(canvas.width / 3, canvas.width * 2 / 3), 2, "#FFF", {
-            x: canvas.width / 2,
-            y: 200
-          });
-          bigbooms.push(bigboom);
-        }
+        var bigboom = new Boom(getRandom(canvas.width / 3, canvas.width * 2 / 3), 2, "#FFF", {
+          x: x,
+          y: y
+        });
+        bigbooms.push(bigboom);
+
         lastTime = newTime;
       }
 
@@ -131,7 +123,7 @@
       this.c = c;
       this.boomArea = boomArea;
       this.dead = false;
-      this.ba = parseInt(getRandom(80, 200));
+      this.ba = parseInt(getRandom(80, 200)); // 爆炸范围
     };
 
     Boom.prototype = {
@@ -165,11 +157,13 @@
       },
       _boom: function() {
         var fragNum = getRandom(30, 200);
+        var angleStep = (2 * Math.PI) / fragNum; // 确保角度均匀分布
         var fanwei = parseInt(getRandom(300, 400));
+
         for (var i = 0; i < fragNum; i++) {
-          var a = getRandom(-Math.PI, Math.PI);
-          var x = getRandom(0, fanwei) * Math.cos(a) + this.x;
-          var y = getRandom(0, fanwei) * Math.sin(a) + this.y;
+          var angle = i * angleStep; // 每个碎片沿不同角度发射
+          var x = this.x + fanwei * Math.cos(angle);
+          var y = this.y + fanwei * Math.sin(angle);
           var radius = getRandom(0, 2);
           var frag = new Frag(this.x, this.y, radius, {a: 255, b: 255, c: 255}, x, y);
           this.booms.push(frag);
@@ -218,6 +212,7 @@
         ctx.restore();
       },
       moveTo: function() {
+        this.ty += 0.3;
         var dx = this.tx - this.x,
             dy = this.ty - this.y;
         this.x += dx * 0.1;
@@ -229,19 +224,7 @@
       }
     };
 
-    // 每秒钟生成 5 个烟花
-    setInterval(function() {
-      for (let i = 0; i < 5; i++) {
-        var x = getRandom(canvas.width / 5, canvas.width * 4 / 5);
-        var y = getRandom(50, 200);
-        var bigboom = new Boom(getRandom(canvas.width / 3, canvas.width * 2 / 3), 2, "#FFF", {x: x, y: y});
-        bigbooms.push(bigboom);
-      }
-    }, 200);  // 每 200 毫秒生成一个烟花
-
-    // 初始化动画
     initAnimate();
   </script>
-
 </body>
 </html>
