@@ -1,0 +1,7 @@
+name = "file-share-worker"
+main = "./worker/worker.js"
+compatibility_date = "2025-01-01"
+
+kv_namespaces = [
+  { binding = "FILES_NAMESPACE", id = "YOUR_KV_NAMESPACE_ID" }
+]
