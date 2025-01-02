@@ -3,5 +3,5 @@ main = "./worker/worker.js"
 compatibility_date = "2025-01-01"
 
 kv_namespaces = [
-  { binding = "FILES_NAMESPACE", id = "YOUR_KV_NAMESPACE_ID" }
+  { binding = "FILES_NAMESPACE", id = "e0536fc2249a41318bcdacfffd556c89" }
 ]
